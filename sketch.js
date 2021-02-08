@@ -58,7 +58,7 @@ function bigGrayMess() {
   SHAPES=["LINE", "ELLIPSE", "TRIANGLE"]
   FILL_ALPHA=.2
   STROKE_ALPHA=1
-  N_SHAPES=1
+  N_SHAPES=50
 }
 
 bigGrayMess()
