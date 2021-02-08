@@ -23,7 +23,7 @@ var N_SHAPES = 10;
 
 // A value which is always added to the volume of the mic
 // (Moderately loud speaking volume _seems_ to be around .1)
-var VOLUME_ADDITION=.05;
+var VOLUME_ADDITION=0;
 // If the volume is below this value (after addition)
 // nothing will be drawn
 var VOLUME_CUTOFF=0;
@@ -295,7 +295,7 @@ function draw() {
   timeWindow.update()
 
   if (timeWindow.isDone()) {
-    save(DEFAULT_FILENAME)
+    saveCanvas(DEFAULT_FILENAME)
     textSize(50);
     fill(255, 255, 255, 255);
     text(`Saved!`, BORDER_SIZE, BORDER_SIZE);
