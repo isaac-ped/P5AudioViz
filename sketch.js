@@ -1,3 +1,5 @@
+
+
 CS_YELLOW=["#EFB70E", "#FFDA6C", "#F8CB42", "#BB8D05", "#926E00", "#EFDB0E", "#FFF26C", "#F8E842", "#BBAA05", "#928500", "#EF8F0E", "#FFC06C", "#F8AA42", "#BB6D05", "#925400"]
 CS_BLUE=["#2500F3", "#C1BFD0", "#9287CC", "#120074", "#0C004E"]
 CS_GREEN=["#63D40C", "#9CE762", "#81DC3A", "#4AA504", "#388200", "#09997D", "#4CB39F", "#2A9F88", "#037760", "#005E4B", "#D5EB0D", "#EDFB6A", "#E2F440", "#A6B704", "#829000"]
@@ -10,9 +12,9 @@ CS_GRAYSCALE=["#040404", "#777777"]
 const DEFAULT_FILENAME="digitalArt.png"
 
 var COLORS=CS_GREEN;
-var FILL_ALPHA=.1;
+var FILL_ALPHA=.3;
 // NOTE: `SoundLine` uses the FILL_ALPHA (even though it is only a stroke)
-var STROKE_ALPHA=.1;
+var STROKE_ALPHA=.5;
 // All shapes in this list will be used
 // (make sure this is a list, even if it only has one item)
 var SHAPES=[
@@ -61,7 +63,7 @@ function bigGrayMess() {
   N_SHAPES=50
 }
 
-bigGrayMess()
+rainbowLines()
 
 
 /** MAYBE TWEAKABLE CONSTANTS **/
@@ -122,6 +124,9 @@ class SoundShape {
     this.speed = createVector(random(MINSPEED, MAXSPEED), random(MINSPEED, MAXSPEED));
     this.rotSpeed = random(ROTSPEED);
     this.rotation = random(PI);
+    this.strokeWeight = .5
+    this.fill_alpha = FILL_ALPHA
+    this.stroke_alpha = STROKE_ALPHA
   }
 
   update() {
@@ -144,9 +149,9 @@ class SoundShape {
   setColors() {
     let fillColor = lerpColor(this.color1, this.color2, this.colorIdx);
     let lineColor = lerpColor(this.color2, this.color1, this.colorIdx);
-    fillColor.setAlpha(FILL_ALPHA);
+    fillColor.setAlpha(this.fill_alpha );
     fill(fillColor);
-    lineColor.setAlpha(STROKE_ALPHA);
+    lineColor.setAlpha(this.stroke_alpha);
     stroke(lineColor);
   }
 
@@ -156,7 +161,7 @@ class SoundShape {
     translate(this.loc.x, this.loc.y)
     rotate(this.rotation);
     scale(volume)
-    strokeWeight(.5);
+    strokeWeight(this.strokeWeight);
     this.makeShape();
     pop();
   }
@@ -171,6 +176,7 @@ class SoundEllipse extends SoundShape {
 
 class SoundTriangle extends SoundShape {
   makeShape() {
+    translate(-TRIANGLE_SIZE/2, -TRIANGLE_SIZE/2)
     triangle(0, 0, TRIANGLE_SIZE, 0, 0, TRIANGLE_SIZE);
   }
 }
@@ -180,11 +186,12 @@ class SoundLine extends SoundShape {
   setColors() {
     strokeWeight(.1);
     let lineColor = lerpColor(this.color2, this.color1, this.colorIdx);
-    lineColor.setAlpha(max(FILL_ALPHA, STROKE_ALPHA))
+    lineColor.setAlpha(max(this.fill_alpha,this.stroke_alpha))
     stroke(lineColor);
   }
 
   makeShape() {
+    translate(0, -LINE_LENGTH/2)
     line(0, 0, 0, LINE_LENGTH);
   }
 }
@@ -249,11 +256,13 @@ let startTime = -1;
 // is set to true
 let started = false;
 
+var sketchOptions = null;
+
 function reset(started=false) {
   /** Clears the screen and creates a new (potentially sliding) window */
   background(0);
   if (!started) {
-    timeWindow = new TimeWindow(1, true);
+    timeWindow = new TimeWindow(.6, true);
   } else {
     timeWindow = new TimeWindow();
   }
@@ -266,11 +275,23 @@ function setup() {
   mic.start()
 
   createCanvas(windowWidth, windowHeight);
-  reset();
+  sketchOptions = new SketchOptions(.6)
+   reset();
 }
 
+function isCountingDown() {
+  return (startTime > Date.now() && timeWindow == null)
+}
+function readyToStart() {
+  return (startTime <= Date.now() && timeWindow == null)
+}
+function hasStarted() {
+  return (startTime > Date.now() && timeWindow != null)
+}
+
+
 function draw() {
-  if (startTime > Date.now()) {
+  if (isCountingDown()) {
     // Countdown initiated!
     let timeLeft = (startTime - Date.now())/1000;
     textSize(50);
@@ -278,11 +299,14 @@ function draw() {
     fill(1, 1)
     text(`Starting in ${int(timeLeft)+1}`, BORDER_SIZE, BORDER_SIZE);
     return;
-  } else if (timeWindow == null) {
+  }  
+  else if (readyToStart()) {
     // Once the countdown starts, the window is removed
     // If the coutdown is over and the window is gone,
     // it means it's time to start!
     reset(true);
+  } else if (!hasStarted()) {
+    sketchOptions.draw()
   }
 
   // "1" is the smoothing
@@ -309,6 +333,12 @@ function mousePressed() {
   // This is annoying, and may only happen when running locally?
   // If you haven't interacted with the screen, it won't allow recording
   // Once you click, this will resume if it's been stopped
+  let [opt, choice] = sketchOptions.getAtLocation(mouseX, mouseY)
+  console.log(choice)
+  if (opt != null) {
+      opt.toggleSelection(choice)
+  }
+  sketchOptions.refresh()
   getAudioContext().resume()
   if (startTime == -1 ) {
     reset()
