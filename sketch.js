@@ -1,23 +1,25 @@
 
 
-CS_YELLOW=["#EFB70E", "#FFDA6C", "#F8CB42", "#BB8D05", "#926E00", "#EFDB0E", "#FFF26C", "#F8E842", "#BBAA05", "#928500", "#EF8F0E", "#FFC06C", "#F8AA42", "#BB6D05", "#925400"]
-CS_BLUE=["#2500F3", "#C1BFD0", "#9287CC", "#120074", "#0C004E"]
-CS_GREEN=["#63D40C", "#9CE762", "#81DC3A", "#4AA504", "#388200", "#09997D", "#4CB39F", "#2A9F88", "#037760", "#005E4B", "#D5EB0D", "#EDFB6A", "#E2F440", "#A6B704", "#829000"]
-CS_PURPLE=["#7F2B6D", "#EFD1E8", "#B46CA5", "#480539", "#11000D"]
-CS_RED=["#FF0000", "#EECECE", "#E29D9D", "#8C0000", "#500000"]
-CS_RAINBOW=["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#00FFFF", "#FF00FF"]
-CS_GRAYSCALE=["#040404", "#777777"]
+// CS_YELLOW = ["#EFB70E", "#FFDA6C", "#F8CB42", "#BB8D05", "#926E00", "#EFDB0E", "#FFF26C", "#F8E842", "#BBAA05", "#928500", "#EF8F0E", "#FFC06C", "#F8AA42", "#BB6D05", "#925400"]
+// CS_BLUE = ["#2500F3", "#C1BFD0", "#9287CC", "#120074", "#0C004E"]
+// CS_GREEN = ["#63D40C", "#9CE762", "#81DC3A", "#4AA504", "#388200", "#09997D", "#4CB39F", "#2A9F88", "#037760", "#005E4B", "#D5EB0D", "#EDFB6A", "#E2F440", "#A6B704", "#829000"]
+// CS_PURPLE = ["#7F2B6D", "#EFD1E8", "#B46CA5", "#480539", "#11000D"]
+// CS_RED = ["#FF0000", "#EECECE", "#E29D9D", "#8C0000", "#500000"]
+// CS_RAINBOW = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#00FFFF", "#FF00FF"]
+// CS_GRAYSCALE = ["#040404", "#777777"]
 
 /** LIKELY TWEAKABLE CONSTANTS **/
-const DEFAULT_FILENAME="digitalArt.png"
+const DEFAULT_FILENAME = "digitalArt.png"
 
-var COLORS=CS_GREEN;
-var FILL_ALPHA=.3;
+var BACKGROUND = "#000000"
+var FOREGROUND = "#FFFFFF"
+var COLORS = CS_GREEN;
+var FILL_ALPHA = .3;
 // NOTE: `SoundLine` uses the FILL_ALPHA (even though it is only a stroke)
-var STROKE_ALPHA=.5;
+var STROKE_ALPHA = .5;
 // All shapes in this list will be used
 // (make sure this is a list, even if it only has one item)
-var SHAPES=[
+var SHAPES = [
   "TRIANGLE", "LINE", "ELLIPSE"
 ]
 var N_SHAPES = 10;
@@ -25,74 +27,74 @@ var N_SHAPES = 10;
 
 // A value which is always added to the volume of the mic
 // (Moderately loud speaking volume _seems_ to be around .1)
-var VOLUME_ADDITION=0;
+var VOLUME_ADDITION = 0;
 // If the volume is below this value (after addition)
 // nothing will be drawn
-var VOLUME_CUTOFF=0;
+var VOLUME_CUTOFF = 0;
 // Volume is multiplied by this amount to determine shape size
 // (up this for quieter noises)
-var VOLUME_SCALE=50;
+var VOLUME_SCALE = 80;
 
 function rainbowLines() {
-  COLORS=CS_RAINBOW
-  SHAPES=["LINE"]
-  N_SHAPES=50
-  VOLUME_SCALE=100;
+  COLORS = CS_RAINBOW
+  SHAPES = ["LINE"]
+  N_SHAPES = 50
+  VOLUME_SCALE = 100;
 }
 
 function redGhosts() {
-  COLORS=CS_RED
-  SHAPES=["ELLIPSE"]
-  FILL_ALPHA=.01
-  STROKE_ALPHA=.0001
+  COLORS = CS_RED
+  SHAPES = ["ELLIPSE"]
+  FILL_ALPHA = .01
+  STROKE_ALPHA = .0001
 }
 
 function greenTriangleWires() {
-  COLORS=CS_GREEN
-  SHAPES=["TRIANGLE"]
-  FILL_ALPHA=.001
-  STROKE_ALPHA=.2
-  N_SHAPES=3
+  COLORS = CS_GREEN
+  SHAPES = ["TRIANGLE"]
+  FILL_ALPHA = .001
+  STROKE_ALPHA = .2
+  N_SHAPES = 3
 }
 
 function bigGrayMess() {
-  COLORS=CS_GRAYSCALE
-  SHAPES=["LINE", "ELLIPSE", "TRIANGLE"]
-  FILL_ALPHA=.2
-  STROKE_ALPHA=1
-  N_SHAPES=50
+  COLORS = CS_GRAYSCALE
+  SHAPES = ["LINE", "ELLIPSE", "TRIANGLE"]
+  FILL_ALPHA = .2
+  STROKE_ALPHA = 1
+  N_SHAPES = 50
 }
 
-rainbowLines()
+// rainbowLines()
 
 
 /** MAYBE TWEAKABLE CONSTANTS **/
 
 // How long it takes the window to sweep across the screen
 // in units of seconds
-const DURATION=10;
+const DURATION = 10;
 
 // Speed of cycling between colors for an individual shape
 // in units of 1/frames
-const COLOR_TRANSITION_SPEED=.005 
+const COLOR_TRANSITION_SPEED = .005
 
 // Bounds of randomly-chosen speed for each shape
 // in units of pixels / frame
-const MINSPEED=.2;
-const MAXSPEED=3
+const MINSPEED = .2;
+const MAXSPEED = 3
 // Bound of rotational speed for each shape
 // in units of radians / frame
-const ROTSPEED=.2;
+const ROTSPEED = .2;
 
 // Width of the window (as a fraction of screen width)
-const WINDOW_SIZE=.1;
+const WINDOW_SIZE = .1;
 
-const LINE_LENGTH=20;
-const TRIANGLE_SIZE=20;
-const ELLIPSE_SIZE=20;
+const LINE_LENGTH = 20;
+const TRIANGLE_SIZE = 20;
+const ELLIPSE_SIZE = 20;
 
 /** UNLIKELY TWEAKABLE CONSTANTS **/
-const BORDER_SIZE=100;
+const BORDER_SIZE = 100;
 
 
 function vecSign(vec) {
@@ -112,10 +114,11 @@ class SoundShape {
     }
     if (!color2) {
       this.color2 = color(random(COLORS));
-      while (this.color2 == this.color1) {
+      while (this.color2.levels[0] == this.color1.levels[0] && this.color1.levels[1] == this.color2.levels[1] && this.color2.levels[2] == this.color2.levels[2]) {
         this.color2 = color(random(COLORS));
       }
     }
+    // console.log(this.color1.levels, this.color2.levels)
     this.colorSpeed = COLOR_TRANSITION_SPEED;
     this.colorIdx = 0;
     this.maxLoc = maxLoc;
@@ -139,17 +142,17 @@ class SoundShape {
       .mult(vecSign(p5.Vector.sub(this.maxLoc, newLoc)))
     this.loc.add(this.speed);
     this.rotation += this.rotSpeed;
-    if (this.colorIdx + this.colorSpeed < 0 || this.colorIdx  + this.colorSpeed > 1) {
-        this.colorSpeed *= -1
+    if (this.colorIdx + this.colorSpeed < 0 || this.colorIdx + this.colorSpeed > 1) {
+      this.colorSpeed *= -1
     }
     this.colorIdx += this.colorSpeed
-  
+
   }
 
   setColors() {
     let fillColor = lerpColor(this.color1, this.color2, this.colorIdx);
     let lineColor = lerpColor(this.color2, this.color1, this.colorIdx);
-    fillColor.setAlpha(this.fill_alpha );
+    fillColor.setAlpha(this.fill_alpha);
     fill(fillColor);
     lineColor.setAlpha(this.stroke_alpha);
     stroke(lineColor);
@@ -176,7 +179,7 @@ class SoundEllipse extends SoundShape {
 
 class SoundTriangle extends SoundShape {
   makeShape() {
-    translate(-TRIANGLE_SIZE/2, -TRIANGLE_SIZE/2)
+    translate(-TRIANGLE_SIZE / 2, -TRIANGLE_SIZE / 2)
     triangle(0, 0, TRIANGLE_SIZE, 0, 0, TRIANGLE_SIZE);
   }
 }
@@ -184,14 +187,14 @@ class SoundTriangle extends SoundShape {
 class SoundLine extends SoundShape {
 
   setColors() {
-    strokeWeight(.1);
+    strokeWeight(this.strokeWeight);
     let lineColor = lerpColor(this.color2, this.color1, this.colorIdx);
-    lineColor.setAlpha(max(this.fill_alpha,this.stroke_alpha))
+    lineColor.setAlpha(max(this.fill_alpha, this.stroke_alpha))
     stroke(lineColor);
   }
 
   makeShape() {
-    translate(0, -LINE_LENGTH/2)
+    translate(0, -LINE_LENGTH / 2)
     line(0, 0, 0, LINE_LENGTH);
   }
 }
@@ -209,14 +212,14 @@ class TimeWindow {
     this.myHeight = height * .8
     this.y = .1 * this.myHeight
     this.myWidth = width * (widthPct ? widthPct : .1)
-    this.speed = noTranslation? 0 : width/DURATION;
+    this.speed = noTranslation ? 0 : width / DURATION;
     this.startTime = Date.now();
 
     let bound = createVector(this.myWidth, this.myHeight);
     this.shapes = [];
-    for (let i=0; i < N_SHAPES; i++) {
-        let ShapeCls = ShapeOptions[random(SHAPES)]
-        this.shapes.push(new ShapeCls(bound));
+    for (let i = 0; i < N_SHAPES; i++) {
+      let ShapeCls = ShapeOptions[random(SHAPES)]
+      this.shapes.push(new ShapeCls(bound));
     }
   }
 
@@ -256,13 +259,16 @@ let startTime = -1;
 // is set to true
 let started = false;
 
+let hasStarted = false;
+
 var sketchOptions = null;
 
-function reset(started=false) {
+function reset(started = false) {
   /** Clears the screen and creates a new (potentially sliding) window */
-  background(0);
+  background(BACKGROUND);
+  hasStarted = false;
   if (!started) {
-    timeWindow = new TimeWindow(.6, true);
+    timeWindow = new TimeWindow(1, true);
   } else {
     timeWindow = new TimeWindow();
   }
@@ -275,8 +281,8 @@ function setup() {
   mic.start()
 
   createCanvas(windowWidth, windowHeight);
-  sketchOptions = new SketchOptions(.6)
-   reset();
+  sketchOptions = new SketchOptions(.7)
+  reset();
 }
 
 function isCountingDown() {
@@ -285,43 +291,41 @@ function isCountingDown() {
 function readyToStart() {
   return (startTime <= Date.now() && timeWindow == null)
 }
-function hasStarted() {
-  return (startTime > Date.now() && timeWindow != null)
-}
-
 
 function draw() {
   if (isCountingDown()) {
     // Countdown initiated!
-    let timeLeft = (startTime - Date.now())/1000;
+    let timeLeft = (startTime - Date.now()) / 1000;
     textSize(50);
-    background(0);
-    fill(1, 1)
-    text(`Starting in ${int(timeLeft)+1}`, BORDER_SIZE, BORDER_SIZE);
+    background(BACKGROUND);
+    fill(FOREGROUND)
+    text(`Starting in ${int(timeLeft) + 1}`, BORDER_SIZE, BORDER_SIZE);
     return;
-  }  
+  }
   else if (readyToStart()) {
     // Once the countdown starts, the window is removed
     // If the coutdown is over and the window is gone,
     // it means it's time to start!
     reset(true);
-  } else if (!hasStarted()) {
+    hasStarted = true;
+  } else if (!hasStarted) {
+    console.log("HERE")
     sketchOptions.draw()
   }
 
   // "1" is the smoothing
   // Doesn't seem to have a huge effect
   let micLevel = mic.getLevel(1);
-  micLevel+=VOLUME_ADDITION;
+  micLevel += VOLUME_ADDITION;
   if (micLevel > VOLUME_CUTOFF) {
-    timeWindow.draw(micLevel*VOLUME_SCALE)
+    timeWindow.draw(micLevel * VOLUME_SCALE)
   }
   timeWindow.update()
 
   if (timeWindow.isDone()) {
     saveCanvas(DEFAULT_FILENAME)
     textSize(50);
-    fill(255, 255, 255, 255);
+    fill(FOREGROUND);
     text(`Saved!`, BORDER_SIZE, BORDER_SIZE);
     // Stop looping once saved
     // (can reset by pressing the mouse)
@@ -334,13 +338,13 @@ function mousePressed() {
   // If you haven't interacted with the screen, it won't allow recording
   // Once you click, this will resume if it's been stopped
   let [opt, choice] = sketchOptions.getAtLocation(mouseX, mouseY)
-  console.log(choice)
+  // console.log(choice)
   if (opt != null) {
-      opt.toggleSelection(choice)
+    opt.toggleSelection(choice)
   }
   sketchOptions.refresh()
   getAudioContext().resume()
-  if (startTime == -1 ) {
+  if (startTime == -1) {
     reset()
   }
   if (!isLooping()) {
@@ -351,9 +355,9 @@ function mousePressed() {
 
 function keyPressed() {
   if (keyCode === ENTER) {
-      startTime = Date.now() + 3000;
-      // Setting this to null signals that when the timer runs out
-      // the canvas should be recreated
-      timeWindow = null;
+    startTime = Date.now() + 3000;
+    // Setting this to null signals that when the timer runs out
+    // the canvas should be recreated
+    timeWindow = null;
   }
 }
